@@ -1,0 +1,259 @@
+{% extends 'header.html' %}
+{% block content %}
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Création Utilisateur</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="card">
+                <div class="card-body">
+                  <form class="forms-sample" method="post" action="{% url 'admin_app:index_users'%}" enctype="multipart/form-data"> 
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="name" placeholder="nom de l'utilisateur" Required>
+                      </div>
+                      <div class="form-group">
+                        <input type="email" class="form-control" name="email" placeholder="Email" Required>
+                      </div>
+                      <div class="form-group">
+                        <select class="form-control form-control-lg" name="sexe"  placeholder="choisir le sexe" Required>
+                          <option value="M">Masculin</option>
+                          <option value="F">Feminin</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <select class="form-control form-control-lg" name="categorie"  placeholder="nom de l'utilisateur" Required>
+                          <option value="-1">Choisir la categorie</option>
+                          {% for liste in categorie  %}
+                                <option value="{{liste.id}}">{{liste.name_type}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>File upload</label>
+                        <input type="file" name="img" class="file-upload-default">
+                        <div class="input-group col-xs-12">
+                          <input type="text" class="form-control file-upload-info" disabled placeholder="Upload Image">
+                          <span class="input-group-append">
+                            <button class="file-upload-browse btn btn-primary" type="button">importer</button>
+                          </span>
+                        </div>
+                      </div>
+
+                    <div class="form-group">
+                      <input type="text" class="form-control" name="username" placeholder="Username">
+                    </div>
+                    
+                    <div class="form-group">
+                      <input type="password" class="form-control" name="password" placeholder="mot de passe">
+                    </div>
+                    <div class="form-group">
+                      <input type="password" class="form-control" name="confirme" placeholder="confirmer le mot de passe">
+                    </div>
+                    <button type="submit" class="btn btn-primary mr-2">Sauvegarder</button>
+                    <input type="hidden" name="code" class="file-upload-default" >
+                  </form>
+                </div>
+              </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <h3 class="page-title">Création Utilisateur</h3>
+            <nav aria-label="breadcrumb">
+            </nav>
+            {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-dismissible alert-success">
+                <strong>{{message}}</strong>
+                </div>
+            {% endfor %}
+            {% endif %}
+          </div>
+      <div class="row ">
+        <div class="col-10 grid-margin">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Listes des Utilisateurs</h4>
+              <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#exampleModal">Ajouter Utilisateur</button></br>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Id</th>
+                      <th>Nom Util.</th>
+                      <th>Username</th>
+                      <th> Email </th>
+                      <th>Genre</th>
+                      <th>Type</th>
+                      <th>Etat</th>
+                      <th>Create_by</th>
+                      <th>Photo</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% load static %}
+                    {% for item in users %}
+                    <tr>
+                        <td> {{item.id}}</td> 
+                        <td> {{item.name_user}}</td>
+                        <td> {{item.username}}</td>
+                        <td> {{item.email}}</td>
+                        <td> {{item.genre}}</td>
+                        <td> {{item.type_user__name_type}}</td>
+                        <td>
+                          {% if item.etat == True %}
+                          <div class="badge badge-outline-success">Activé</div>
+                          {% else %}
+                          <div class="badge badge-outline-danger">désactivé</div>
+                          {% endif %} 
+                          </td>
+                        <td> {{item.admin_users__username}}</td>
+                        <td>
+                          {% if item.photos %}
+                          <img src="/media/{{item.photos}}" alt="herve">
+                          {% else %}
+                          <img src="/media/logo_user_h/person-4.png" alt="herve">
+                          {% endif %} 
+                        </td>
+                        <td>
+                          <button data-id = "{{item.id}}" class="btn btn-success btn-circle views_users"><i class="mdi mdi-eye"></i></button> <button data-id="{{item.id}}"  class="btn btn-success btn-circle check_users"><i class="mdi mdi-check"></i></button> <button data-id="{{item.id}}"  class="btn btn-danger btn-circle deleteUser"><i class="mdi mdi-Trash">delete</i></button> 
+                          
+                          </td>
+                    </tr>
+                    {% endfor %}
+                   
+                  </tbody>
+                </table>
+                {% if users.has_other_pages %}
+                <ul class="pagination">
+              {% if users.has_previous %}
+                <li><a href="?page={{ users.previous_page_number }}">&laquo;</a></li>
+              {% else %}
+                <li class="disabled"><span>&laquo;</span></li>
+              {% endif %}
+              {% for i in users.paginator.page_range %}
+                {% if users.number == i %}
+                   <li class="active"><span>{{ i }} <span class="sr-only">(current)</span> 
+              .     </span></li>
+              {% else %}
+                <li><a href="?page={{ i }}">{{ i }}</a></li>
+              {% endif %}
+            {% endfor %}
+            {% if users.has_next %}
+              <li><a href="?page={{ users.next_page_number }}">&raquo;</a></li>
+                 {% else %}
+                 <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+             </ul>
+             {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row hidden" >
+
+        <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Portfolio Slide</h4>
+              <div class="owl-carousel owl-theme full-width owl-carousel-dash portfolio-carousel" id="owl-carousel-basic">
+                <div class="item">
+                  <img src="assets/images/dashboard/Rectangle.jpg" alt="">
+                </div>
+                <div class="item">
+                  <img src="assets/images/dashboard/Img_5.jpg" alt="">
+                </div>
+                <div class="item">
+                  <img src="assets/images/dashboard/img_6.jpg" alt="">
+                </div>
+              </div>
+              <div class="d-flex py-4">
+                <div class="preview-list w-100">
+                  <div class="preview-item p-0">
+                    <div class="preview-thumbnail">
+                      <img src="assets/images/faces/face12.jpg" class="rounded-circle" alt="">
+                    </div>
+                    <div class="preview-item-content d-flex flex-grow">
+                      <div class="flex-grow">
+                        <div class="d-flex d-md-block d-xl-flex justify-content-between">
+                          <h6 class="preview-subject">CeeCee Bass</h6>
+                          <p class="text-muted text-small">4 Hours Ago</p>
+                        </div>
+                        <p class="text-muted">Well, it seems to be working now.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="text-muted">Well, it seems to be working now. </p>
+              <div class="progress progress-md portfolio-progress">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+  
+    </div>
+    <!-- content-wrapper ends -->
+    <!-- partial:partials/_footer.html -->
+    <footer class="footer">
+      <div class="d-sm-flex justify-content-center justify-content-sm-between">
+        <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © bootstrapdash.com 2020</span>
+        <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Free <a href="https://www.bootstrapdash.com/bootstrap-admin-template/" target="_blank">Bootstrap admin templates</a> from Bootstrapdash.com</span>
+      </div>
+    </footer>
+    <!-- partial -->
+  </div>
+  {% endblock content %}
+  {% block script %}
+  <script type="text/javascript"> 
+    (function() {
+      $('body').delegate('.deleteUser','click',function(e){
+        let get_id=$(this).data('id');
+        Swal.fire({
+          title: 'NEM',
+          html:'cet utilisateur sera inactif apres cette operation!!',
+          width: 600,
+          padding: '3em',
+          showDenyButton: true,
+          confirmButtonText: `oui`,
+          denyButtonText: `non`,
+        }).then((result)=>{
+              if (result.isConfirmed){
+
+                $.ajax({
+                  url:"{% url 'admin_app:destroy_user' %}?pk="+get_id,
+                  type:"GET",
+                  async:true,
+                  success: function(response){
+                    if (response.success == 200){
+                      window.location.reload();
+                    }
+                      
+                  }
+
+              });
+              }
+        });
+        
+      });
+    })();
+  </script>
+  {% endblock script %}
